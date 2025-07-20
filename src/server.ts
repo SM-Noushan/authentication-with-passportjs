@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import app from "./app";
 import { Server } from "http";
 import mongoose from "mongoose";
@@ -8,10 +7,10 @@ let server: Server;
 
 async function main() {
   try {
-    await mongoose.connect(config.dbUrl as string);
+    await mongoose.connect(config.DB_URL);
 
-    server = app.listen(config.port, () => {
-      console.log("Server is running on port:", config.port);
+    server = app.listen(config.PORT, () => {
+      console.log("Server is running on port:", config.PORT);
     });
   } catch (error) {
     console.log(error);
