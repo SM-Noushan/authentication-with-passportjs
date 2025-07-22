@@ -1,14 +1,27 @@
-import { ZodError } from "zod";
+import z, { ZodError } from "zod";
 import { TErrorSource, TGenericErrorResponse } from "../interface/error";
+
+type TTreeError = {
+  errors: string[];
+  properties?: {
+    [key: string]: TTreeError;
+  };
+};
 
 const handleZodError = (error: ZodError): TGenericErrorResponse => {
   const statusCode = 400;
-  const errorSources: TErrorSource = error.issues.map(issue => {
-    return {
-      path: issue?.path?.length > 0 ? issue.path[0] : "",
-      message: issue?.message,
-    };
-  });
+  const treeError: TTreeError = z.treeifyError(error);
+  const errorObj = treeError?.properties?.body?.properties || {};
+
+  const errorSources: TErrorSource = Object.keys(errorObj)
+    .sort()
+    .map(key => {
+      return {
+        path: key,
+        message: errorObj[key].errors?.join(", ") || "Unknown error",
+      };
+    });
+
   return {
     statusCode,
     message: "Validation Error",
