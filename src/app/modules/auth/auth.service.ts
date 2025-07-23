@@ -46,7 +46,20 @@ const loginUser = async (payload: TLoginUser) => {
   return { result: { user, ...tokenInfo }, tokenInfo };
 };
 
+const changePassword = async (userId: string, newPassword: string, oldPassword: string) => {
+  const user = await User.findById(userId).select("+password");
+
+  const isOldPasswordMatch = await bcrypt.compare(oldPassword, user!.password!);
+  if (!isOldPasswordMatch) throw new AppError(status.UNAUTHORIZED, "Old password is incorrect!");
+
+  const hashedPassword = await bcrypt.hash(newPassword, config.BCRYPT_SALT_ROUNDS);
+  user!.password = hashedPassword;
+  await user!.save();
+
+  return null;
+};
 export const AuthServices = {
   registerUser,
   loginUser,
+  changePassword,
 };

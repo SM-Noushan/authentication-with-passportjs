@@ -30,6 +30,17 @@ const loginUser = catchAsync(async (req, res) => {
   });
 });
 
+const changePassword = catchAsync(async (req, res) => {
+  await AuthServices.changePassword(req.user.userId, req.body.newPassword, req.body.oldPassword);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Password changed successfully",
+    data: null,
+  });
+});
+
 const logOutUser = catchAsync(async (req, res) => {
   ["accessToken", "refreshToken"].forEach(key =>
     res.clearCookie(key, {
@@ -50,5 +61,6 @@ const logOutUser = catchAsync(async (req, res) => {
 export const AuthController = {
   registerUser,
   loginUser,
+  changePassword,
   logOutUser,
 };
