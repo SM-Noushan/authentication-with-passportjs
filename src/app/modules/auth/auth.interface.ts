@@ -15,6 +15,6 @@ export type TPasswordChange = {
 };
 
 export interface IAuthTokens {
-  accessToken: string;
-  refreshToken: string;
+  accessToken?: string;
+  refreshToken?: string;
 }

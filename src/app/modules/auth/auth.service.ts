@@ -2,11 +2,13 @@ import bcrypt from "bcrypt";
 import status from "http-status";
 import config from "../../config";
 import { User } from "../user/user.model";
+import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../errors/AppError";
-import { createUserTokens } from "./auth.utils";
+import decodeToken from "../../utils/decodeToken";
 import { IAuthProvider } from "../user/user.interface";
-import { USER_AUTH_PROVIDER } from "../user/user.constant";
 import { TLoginUser, TRegisterUser } from "./auth.interface";
+import { createUserTokens, generateToken } from "./auth.utils";
+import { USER_AUTH_PROVIDER, USER_IS_ACTIVE } from "../user/user.constant";
 
 const registerUser = async (payload: TRegisterUser) => {
   const { email, password, ...rest } = payload;
@@ -58,8 +60,28 @@ const changePassword = async (userId: string, newPassword: string, oldPassword: 
 
   return null;
 };
+
+const getNewAccessToken = async (refreshToken: string) => {
+  const decoded = decodeToken(refreshToken, config.JWT_REFRESH_SECRET) as JwtPayload;
+
+  const user = await User.findById(decoded.userId).lean();
+  if (!user || user.isDeleted) throw new AppError(status.BAD_REQUEST, "User does not exist!");
+  if (user.isActive === USER_IS_ACTIVE.BLOCKED || user.isActive === USER_IS_ACTIVE.INACTIVE)
+    throw new AppError(status.BAD_REQUEST, `User is ${user.isActive.toLowerCase()}`);
+
+  const jwtPayload = { userId: user._id, email: user.email, role: user.role };
+  const accessToken = generateToken(
+    jwtPayload,
+    config.JWT_ACCESS_SECRET,
+    config.JWT_ACCESS_EXPIRATION
+  );
+
+  return { accessToken };
+};
+
 export const AuthServices = {
   registerUser,
   loginUser,
   changePassword,
+  getNewAccessToken,
 };
