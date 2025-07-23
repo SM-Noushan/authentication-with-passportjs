@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
-import { IUser } from "../user/user.interface";
 import config from "../../config";
+import { Response } from "express";
+import { IUser } from "../user/user.interface";
+import { IAuthTokens } from "./auth.interface";
 
 export const generateToken = (payload: jwt.JwtPayload, secret: string, expiresIn: string): string =>
   jwt.sign(payload, secret, {
@@ -22,4 +24,14 @@ export const createUserTokens = (user: Partial<IUser>) => {
   );
 
   return { accessToken, refreshToken };
+};
+
+export const setAuthCookies = (res: Response, tokens: IAuthTokens) => {
+  Object.entries(tokens).forEach(([key, value]) => {
+    res.cookie(key, value, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+  });
 };

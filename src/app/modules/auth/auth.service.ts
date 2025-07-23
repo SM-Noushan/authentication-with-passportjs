@@ -29,7 +29,7 @@ const registerUser = async (payload: TRegisterUser) => {
 
   const tokenInfo = createUserTokens(user.toObject());
 
-  return { user: user.toObject(), ...tokenInfo };
+  return { result: { user: user.toObject(), ...tokenInfo }, tokenInfo };
 };
 
 const loginUser = async (payload: TLoginUser) => {
@@ -43,7 +43,7 @@ const loginUser = async (payload: TLoginUser) => {
 
   const tokenInfo = createUserTokens(user);
 
-  return { user, ...tokenInfo };
+  return { result: { user, ...tokenInfo }, tokenInfo };
 };
 
 export const AuthServices = {

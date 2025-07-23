@@ -13,3 +13,8 @@ export type TPasswordChange = {
   currentPassword: string;
   newPassword: string;
 };
+
+export interface IAuthTokens {
+  accessToken: string;
+  refreshToken: string;
+}
