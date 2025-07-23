@@ -24,4 +24,11 @@ const userSchema = new Schema<IUser>(
   { timestamps: true, versionKey: false }
 );
 
+userSchema.set("toObject", {
+  transform(doc, ret, _options) {
+    delete ret.password;
+    return ret;
+  },
+});
+
 export const User = model<IUser>("User", userSchema);

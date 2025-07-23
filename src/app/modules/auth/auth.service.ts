@@ -4,9 +4,9 @@ import config from "../../config";
 import { User } from "../user/user.model";
 import AppError from "../../errors/AppError";
 import { createUserTokens } from "./auth.utils";
-import { TRegisterUser } from "./auth.interface";
 import { IAuthProvider } from "../user/user.interface";
 import { USER_AUTH_PROVIDER } from "../user/user.constant";
+import { TLoginUser, TRegisterUser } from "./auth.interface";
 
 const registerUser = async (payload: TRegisterUser) => {
   const { email, password, ...rest } = payload;
@@ -27,6 +27,20 @@ const registerUser = async (payload: TRegisterUser) => {
     ...rest,
   });
 
+  const tokenInfo = createUserTokens(user.toObject());
+
+  return { user: user.toObject(), ...tokenInfo };
+};
+
+const loginUser = async (payload: TLoginUser) => {
+  const user = await User.findOne({ email: payload.email }).select("+password").lean();
+  if (!user || !user.password)
+    throw new AppError(status.UNAUTHORIZED, "Invalid email or password!");
+
+  const isPasswordMatch = await bcrypt.compare(payload.password, user.password);
+  if (!isPasswordMatch) throw new AppError(status.UNAUTHORIZED, "Invalid email or password!");
+  delete user.password;
+
   const tokenInfo = createUserTokens(user);
 
   return { user, ...tokenInfo };
@@ -34,4 +48,5 @@ const registerUser = async (payload: TRegisterUser) => {
 
 export const AuthServices = {
   registerUser,
+  loginUser,
 };

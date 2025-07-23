@@ -1,8 +1,7 @@
 import { z } from "zod";
 
 export const emailString = z
-  .string()
-  .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email format")
+  .email()
   .min(6, { error: "Email must be at least 6 characters long." })
   .max(100, { error: "Email cannot exceed 100 characters." });
 
@@ -36,6 +35,14 @@ const registerValidationSchema = z.object({
   }),
 });
 
+const loginValidationSchema = z.object({
+  body: z.object({
+    email: emailString,
+    password: z.string().min(6, "Password must be at least 6 characters long"),
+  }),
+});
+
 export const AuthValidation = {
   registerValidationSchema,
+  loginValidationSchema,
 };
