@@ -38,7 +38,17 @@ router.get("/google", async (req: Request, res: Response, next: NextFunction) =>
 router.get(
   "/callback/google",
   passport.authenticate("google", { failureRedirect: "/login" }),
-  AuthController.googleCallback
+  AuthController.passportCallback
+);
+
+router.get("/facebook", async (req: Request, res: Response, next: NextFunction) => {
+  const redirectUrl = (req.query.redirect as string) || "";
+  passport.authenticate("facebook", { state: redirectUrl })(req, res, next);
+});
+router.get(
+  "/callback/facebook",
+  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  AuthController.passportCallback
 );
 
 export const AuthRoutes = router;

@@ -81,14 +81,14 @@ const logOutUser = catchAsync(async (req, res) => {
   });
 });
 
-const googleCallback = catchAsync(async (req, res) => {
+const passportCallback = catchAsync(async (req, res) => {
   let redirectTo = (req.query.state as string) || "";
   if (redirectTo && !redirectTo.startsWith("/")) redirectTo = "/" + redirectTo;
-  // console.log("Google Callback Redirect To:", redirectTo);
+  // console.log("Passport Callback Redirect To:", redirectTo);
 
   const user = req.user;
-  if (!user) throw new AppError(status.NOT_FOUND, "Google authentication failed");
-  // console.log("Google Callback User:", user);
+  if (!user) throw new AppError(status.NOT_FOUND, "Passport authentication failed");
+  // console.log("Passport Callback User:", user);
   const tokenInfo = createUserTokens(user);
 
   setAuthCookies(res, tokenInfo);
@@ -102,5 +102,5 @@ export const AuthController = {
   changePassword,
   getNewAccessToken,
   logOutUser,
-  googleCallback,
+  passportCallback,
 };

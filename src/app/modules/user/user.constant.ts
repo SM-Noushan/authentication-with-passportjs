@@ -12,5 +12,6 @@ export enum USER_IS_ACTIVE {
 
 export enum USER_AUTH_PROVIDER {
   GOOGLE = "google",
+  FACEBOOK = "facebook",
   CREDENTIALS = "credentials",
 }
