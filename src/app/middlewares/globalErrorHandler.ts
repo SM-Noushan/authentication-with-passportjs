@@ -1,17 +1,16 @@
-import { ZodError } from 'zod';
-import mongoose from 'mongoose';
-import { ErrorRequestHandler } from 'express';
-import { TErrorSource } from '../interface/error';
-import handleZodError from '../errors/handleZodError';
-import { handleMongooseError } from '../errors/handleMongooseError';
+import { ZodError } from "zod";
+import mongoose from "mongoose";
+import { ErrorRequestHandler } from "express";
+import { TErrorSource } from "../interface/error";
+import handleZodError from "../errors/handleZodError";
+import { handleMongooseError } from "../errors/handleMongooseError";
 
-// eslint-disable-next-line no-unused-vars
-const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
+const globalErrorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   let statusCode = error.statusCode || 500;
-  let message = error.message || 'Something went wrong!';
+  let message = error.message || "Something went wrong!";
   let errorSources: TErrorSource = [
     {
-      path: '',
+      path: "",
       message,
     },
   ];
@@ -28,7 +27,7 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
 
   // duplicate value error
   if (error.code === 11000) {
-    message = message.match(/"([^"]*)"/)[1] + ' already exists';
+    message = message.match(/"([^"]*)"/)[1] + " already exists";
     errorSources[0].path = Object.keys(error.keyValue)[0];
     errorSources[0].message = message;
   }
@@ -43,7 +42,7 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
     success: false,
     message,
     errorSources,
-    stack: process.env.NODE_ENV === 'development' ? error.stack : '🥞',
+    stack: process.env.NODE_ENV === "development" ? error.stack : "🥞",
   });
 };
 

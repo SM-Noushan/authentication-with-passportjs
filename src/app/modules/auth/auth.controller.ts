@@ -1,9 +1,11 @@
 import status from "http-status";
+import config from "../../config";
+import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../errors/AppError";
 import { AuthServices } from "./auth.service";
-import { setAuthCookies } from "./auth.utils";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
+import { createUserTokens, setAuthCookies } from "./auth.utils";
 
 const registerUser = catchAsync(async (req, res) => {
   const { result, tokenInfo } = await AuthServices.registerUser(req.body);
@@ -32,7 +34,11 @@ const loginUser = catchAsync(async (req, res) => {
 });
 
 const changePassword = catchAsync(async (req, res) => {
-  await AuthServices.changePassword(req.user.userId, req.body.newPassword, req.body.oldPassword);
+  await AuthServices.changePassword(
+    (req.user as JwtPayload).userId,
+    req.body.newPassword,
+    req.body.oldPassword
+  );
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -75,10 +81,26 @@ const logOutUser = catchAsync(async (req, res) => {
   });
 });
 
+const googleCallback = catchAsync(async (req, res) => {
+  let redirectTo = (req.query.state as string) || "";
+  if (redirectTo && !redirectTo.startsWith("/")) redirectTo = "/" + redirectTo;
+  // console.log("Google Callback Redirect To:", redirectTo);
+
+  const user = req.user;
+  if (!user) throw new AppError(status.NOT_FOUND, "Google authentication failed");
+  // console.log("Google Callback User:", user);
+  const tokenInfo = createUserTokens(user);
+
+  setAuthCookies(res, tokenInfo);
+  // console.log("Redirecting to:", config.FRONTEND_URL + redirectTo);
+  res.redirect(config.FRONTEND_URL + redirectTo);
+});
+
 export const AuthController = {
   registerUser,
   loginUser,
   changePassword,
   getNewAccessToken,
   logOutUser,
+  googleCallback,
 };
