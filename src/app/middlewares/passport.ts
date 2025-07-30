@@ -3,7 +3,7 @@ import passport from "passport";
 import {
   Profile as GoogleProfile,
   Strategy as GoogleStrategy,
-  VerifyCallback as GoogleCallback,
+  VerifyCallback as VerifyGoogleCallback,
 } from "passport-google-oauth20";
 import { User } from "../modules/user/user.model";
 import { USER_AUTH_PROVIDER, USER_ROLE } from "../modules/user/user.constant";
@@ -21,14 +21,14 @@ passport.use(
       _accessToken: string,
       _refreshToken: string,
       profile: GoogleProfile,
-      cb: GoogleCallback
+      cb: VerifyGoogleCallback
     ) => {
       try {
         // console.log("Google Profile:", profile);
         const email = profile.emails?.[0]?.value;
         if (!email) return cb(null, false, { message: "No email found in Google profile" });
 
-        let user = await User.findOne({ email }).lean();
+        let user = await User.findOne({ email });
         if (!user)
           user = await User.create({
             email,
@@ -38,6 +38,15 @@ passport.use(
             isVerified: profile.emails?.[0]?.verified || false,
             auths: [{ provider: USER_AUTH_PROVIDER.GOOGLE, providerId: profile.id }],
           });
+        else {
+          const googleAuthExists = user.auths.some(
+            auth => auth.provider === USER_AUTH_PROVIDER.GOOGLE
+          );
+          if (!googleAuthExists) {
+            user.auths.push({ provider: USER_AUTH_PROVIDER.GOOGLE, providerId: profile.id });
+            await user.save();
+          }
+        }
 
         return cb(null, user);
       } catch (error) {
@@ -63,7 +72,7 @@ passport.use(
         const email = profile.emails?.[0]?.value;
         if (!email) return cb(null, false, { message: "No email found in Google profile" });
 
-        let user = await User.findOne({ email }).lean();
+        let user = await User.findOne({ email });
         if (!user)
           user = await User.create({
             email,
@@ -73,6 +82,15 @@ passport.use(
             isVerified: true,
             auths: [{ provider: USER_AUTH_PROVIDER.FACEBOOK, providerId: profile.id }],
           });
+        else {
+          const facebookAuthExists = user.auths.some(
+            auth => auth.provider === USER_AUTH_PROVIDER.FACEBOOK
+          );
+          if (!facebookAuthExists) {
+            user.auths.push({ provider: USER_AUTH_PROVIDER.FACEBOOK, providerId: profile.id });
+            await user.save();
+          }
+        }
 
         return cb(null, user);
       } catch (error) {
