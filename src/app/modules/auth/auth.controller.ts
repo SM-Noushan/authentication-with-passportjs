@@ -1,3 +1,4 @@
+import passport from "passport";
 import status from "http-status";
 import config from "../../config";
 import { JwtPayload } from "jsonwebtoken";
@@ -20,17 +21,39 @@ const registerUser = catchAsync(async (req, res) => {
   });
 });
 
-const loginUser = catchAsync(async (req, res) => {
-  const { result, tokenInfo } = await AuthServices.loginUser(req.body);
+// const loginUser = catchAsync(async (req, res) => {
+//   const { result, tokenInfo } = await AuthServices.loginUser(req.body);
 
-  setAuthCookies(res, tokenInfo);
+//   setAuthCookies(res, tokenInfo);
 
-  sendResponse(res, {
-    statusCode: status.OK,
-    success: true,
-    message: "User logged in successfully",
-    data: result,
-  });
+//   sendResponse(res, {
+//     statusCode: status.OK,
+//     success: true,
+//     message: "User logged in successfully",
+//     data: result,
+//   });
+// });
+const loginUser = catchAsync(async (req, res, next) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  passport.authenticate("local", async (err: any, user: any, info: { message: string }) => {
+    // console.log({ err, user, info });
+    if (err) return next(err);
+    // return next(new AppError(status.UNAUTHORIZED, err));
+    if (!user) return next(new AppError(status.UNAUTHORIZED, info.message));
+
+    const tokenInfo = createUserTokens(user);
+    setAuthCookies(res, tokenInfo);
+
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: "User logged in successfully",
+      data: {
+        user,
+        ...tokenInfo,
+      },
+    });
+  })(req, res, next);
 });
 
 const changePassword = catchAsync(async (req, res) => {

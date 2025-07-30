@@ -6,6 +6,7 @@ import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../errors/AppError";
 import decodeToken from "../../utils/decodeToken";
 import { IAuthProvider } from "../user/user.interface";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { TLoginUser, TRegisterUser } from "./auth.interface";
 import { createUserTokens, generateToken } from "./auth.utils";
 import { USER_AUTH_PROVIDER, USER_IS_ACTIVE } from "../user/user.constant";
@@ -34,19 +35,19 @@ const registerUser = async (payload: TRegisterUser) => {
   return { result: { user: user.toObject(), ...tokenInfo }, tokenInfo };
 };
 
-const loginUser = async (payload: TLoginUser) => {
-  const user = await User.findOne({ email: payload.email }).select("+password").lean();
-  if (!user || !user.password)
-    throw new AppError(status.UNAUTHORIZED, "Invalid email or password!");
+// const loginUser = async (payload: TLoginUser) => {
+//   const user = await User.findOne({ email: payload.email }).select("+password").lean();
+//   if (!user || !user.password)
+//     throw new AppError(status.UNAUTHORIZED, "Invalid email or password!");
 
-  const isPasswordMatch = await bcrypt.compare(payload.password, user.password);
-  if (!isPasswordMatch) throw new AppError(status.UNAUTHORIZED, "Invalid email or password!");
-  delete user.password;
+//   const isPasswordMatch = await bcrypt.compare(payload.password, user.password);
+//   if (!isPasswordMatch) throw new AppError(status.UNAUTHORIZED, "Invalid email or password!");
+//   delete user.password;
 
-  const tokenInfo = createUserTokens(user);
+//   const tokenInfo = createUserTokens(user);
 
-  return { result: { user, ...tokenInfo }, tokenInfo };
-};
+//   return { result: { user, ...tokenInfo }, tokenInfo };
+// };
 
 const changePassword = async (userId: string, newPassword: string, oldPassword: string) => {
   const user = await User.findById(userId).select("+password");
@@ -81,7 +82,7 @@ const getNewAccessToken = async (refreshToken: string) => {
 
 export const AuthServices = {
   registerUser,
-  loginUser,
+  // loginUser,
   changePassword,
   getNewAccessToken,
 };

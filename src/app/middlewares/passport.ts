@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import config from "../config";
 import passport from "passport";
 import {
@@ -6,8 +7,51 @@ import {
   VerifyCallback as VerifyGoogleCallback,
 } from "passport-google-oauth20";
 import { User } from "../modules/user/user.model";
+import { Strategy as LocalStrategy } from "passport-local";
 import { USER_AUTH_PROVIDER, USER_ROLE } from "../modules/user/user.constant";
 import { Strategy as FacebookStrategy, Profile as FacebookProfile } from "passport-facebook";
+
+// Local Strategy
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    async (email: string, password: string, cb) => {
+      try {
+        const user = await User.findOne({ email }).select("+password").lean();
+        if (!user) return cb(null, false, { message: "Invalid email or password" });
+
+        const isSocialAuthenticated = user.auths.some(
+          auth => auth.provider !== USER_AUTH_PROVIDER.CREDENTIALS
+        );
+        if (isSocialAuthenticated && !user.password)
+          return cb(null, false, {
+            message:
+              "You have logged in with a social account. If you want to use email/password login, please set a password.",
+          });
+        // return cb(
+        //   "You have logged in with a social account. If you want to use email/password login, please set a password."
+        // );
+        // return cb({
+        //   statusCode: 403,
+        //   message:
+        //     "You have logged in with a social account. If you want to use email/password login, please set a password.",
+        // });
+
+        const isPasswordMatch = await bcrypt.compare(password, user.password!);
+        if (!isPasswordMatch) return cb(null, false, { message: "Invalid email or password" });
+
+        delete user.password;
+
+        return cb(null, user);
+      } catch (error) {
+        cb(error);
+      }
+    }
+  )
+);
 
 // Google OAuth Strategy
 passport.use(
@@ -70,7 +114,7 @@ passport.use(
       try {
         // console.log("Facebook Profile:", profile);
         const email = profile.emails?.[0]?.value;
-        if (!email) return cb(null, false, { message: "No email found in Google profile" });
+        if (!email) return cb(null, false, { message: "No email found in Facebook profile" });
 
         let user = await User.findOne({ email });
         if (!user)
