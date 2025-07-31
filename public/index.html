@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Passport Auth System</title>
+    <style>
+        /* Global Styles */
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #3b82f6, #9333ea);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100dvh;
+            /* Occupy at least full screen height */
+            padding: 0 2rem;
+        }
+
+        /* Card Container */
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            padding: 2rem 3rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
+            max-width: 600px;
+            animation: fadeIn 1.2s ease;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            color: #facc15;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            color: #f3f4f6;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            background: rgba(255, 255, 255, 0.15);
+            margin: 0.4rem 0;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: transform 0.2s ease;
+        }
+
+        li:hover {
+            transform: translateX(6px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        footer {
+            font-size: 0.9rem;
+            color: #d1d5db;
+            margin-top: 1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media screen and (max-width: 600px) {
+            body {
+                padding: 0 1rem;
+            }
+
+            .card {
+                padding: 1.5rem 2rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            p,
+            li {
+                font-size: 0.9rem;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>🚀 Passport Authentication System</h1>
+        <p>
+            A production-ready backend using <strong>Express.js</strong>,
+            <strong>TypeScript</strong>, <strong>Passport.js</strong>,
+            <strong>MongoDB (Mongoose)</strong>, <strong>Redis/RedisStore</strong>, and <strong>Bun</strong>.
+        </p>
+        <ul>
+            <li>🔐 Local, Google & Facebook Authentication</li>
+            <li>⚡ JWT with Refresh Tokens & Secure Logout</li>
+            <li>🪪 Redis/RedisStore for session management</li>
+            <li>🛡 Zod Validation & Centralized Error Handling</li>
+            <li>📂 Modular & Scalable Folder Structure</li>
+            <li>🗄 MongoDB with Mongoose Integration</li>
+        </ul>
+        <footer>✅ Server is running successfully</footer>
+    </div>
+</body>
+
+</html>
