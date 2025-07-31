@@ -88,11 +88,25 @@ const getNewAccessToken = catchAsync(async (req, res) => {
 });
 
 const logOutUser = catchAsync(async (req, res) => {
-  ["accessToken", "refreshToken"].forEach(key =>
+  // Destroy the session in Redis
+  req.session.destroy(err => {
+    if (err) {
+      // console.error("Error destroying session:", err);
+      return sendResponse(res, {
+        statusCode: status.INTERNAL_SERVER_ERROR,
+        success: false,
+        message: "Error logging out",
+        data: null,
+      });
+    }
+  });
+
+  // Clear the session cookie
+  ["accessToken", "refreshToken", "connect.sid"].forEach(key =>
     res.clearCookie(key, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     })
   );
 
